@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contrafuga</title>
+<meta name="description" content="Diário de aproximação: registre o que você está evitando, marque o menor passo e compare previsão com realidade.">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Contrafuga">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<style>
+/* Layout: casca de app iOS. Barra de navegação translúcida no topo, título grande, listas agrupadas, barra de abas na base. */
+:root {
+  --bg: #F2F2F7;
+  --card: #FFFFFF;
+  --card-2: #F2F2F7;
+  --label: #111114;
+  --label-2: rgba(60, 60, 67, .62);
+  --label-3: rgba(60, 60, 67, .32);
+  --sep: rgba(60, 60, 67, .16);
+  --fill: rgba(118, 118, 128, .12);
+  --fill-2: rgba(118, 118, 128, .2);
+  --accent: #0A8C76;
+  --on-accent: #FFFFFF;
+  --accent-soft: rgba(10, 140, 118, .12);
+  --ring-a: #19C29C;
+  --ring-b: #0A8C76;
+  --orange: #D96F00;
+  --orange-soft: rgba(255, 149, 0, .14);
+  --red: #E0352B;
+  --bar: rgba(249, 249, 251, .82);
+  --shadow: 0 1px 1px rgba(0,0,0,.02), 0 6px 22px rgba(0,0,0,.05);
+  --sheet-shadow: 0 -8px 40px rgba(0,0,0,.12);
+  --f: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --f-round: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --f-serif: ui-serif, "New York", "Iowan Old Style", Georgia, serif;
+  --spring: cubic-bezier(.34, 1.4, .64, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000; --card: #1C1C1E; --card-2: #2C2C2E; --label: #FFFFFF;
+    --label-2: rgba(235, 235, 245, .62); --label-3: rgba(235, 235, 245, .3); --sep: rgba(84, 84, 88, .6);
+    --fill: rgba(118, 118, 128, .24); --fill-2: rgba(118, 118, 128, .36);
+    --accent: #3DD6B3; --on-accent: #00261E; --accent-soft: rgba(61, 214, 179, .16);
+    --ring-a: #6AF5D2; --ring-b: #2BC4A0;
+    --orange: #FF9F0A; --orange-soft: rgba(255, 159, 10, .18); --red: #FF453A;
+    --bar: rgba(22, 22, 24, .78); --shadow: none; --sheet-shadow: 0 -8px 40px rgba(0,0,0,.5);
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { background: var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--label); font-family: var(--f); font-size: 17px; line-height: 1.35; letter-spacing: -.01em; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; overscroll-behavior-y: none; }
+button, input, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
+button { cursor: pointer; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { text-wrap: balance; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+svg { flex: none; }
+
+/* Barra de navegação */
+.navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 30; padding-top: env(safe-area-inset-top, 0px); background: transparent; transition: background .2s ease, box-shadow .2s ease; }
+.navbar.scrolled { background: var(--bar); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); box-shadow: 0 .5px 0 var(--sep); }
+.nav-inner { max-width: 720px; margin: 0 auto; height: 44px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-inline: 8px; }
+.nav-title { font-weight: 600; font-size: 17px; opacity: 0; transition: opacity .18s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60vw; }
+.navbar.scrolled .nav-title, .navbar.always .nav-title { opacity: 1; }
+.nav-left { justify-self: start; } .nav-right { justify-self: end; }
+.nav-btn { background: none; border: 0; color: var(--accent); font-size: 17px; padding: 8px 8px; display: inline-flex; align-items: center; gap: 2px; border-radius: 10px; }
+.nav-btn:active { opacity: .45; }
+.nav-btn.icon { width: 44px; height: 44px; justify-content: center; }
+.nav-btn.icon span { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); display: grid; place-items: center; }
+
+/* Conteúdo */
+main { max-width: 720px; margin: 0 auto; padding: calc(44px + env(safe-area-inset-top, 0px)) 16px calc(96px + env(safe-area-inset-bottom, 0px)); }
+.page { display: grid; gap: 28px; padding-top: 6px; }
+.large-head { display: grid; gap: 2px; }
+.date-kicker { font-size: 13px; font-weight: 600; color: var(--label-2); text-transform: uppercase; letter-spacing: .02em; }
+.large-title { font-size: 34px; font-weight: 700; letter-spacing: .01em; line-height: 1.12; }
+.section { display: grid; gap: 7px; }
+.section-head { display: flex; justify-content: space-between; align-items: baseline; padding-inline: 4px; gap: 12px; }
+.section-head h2 { font-size: 22px; font-weight: 700; letter-spacing: .005em; }
+.section-head .link { background: none; border: 0; color: var(--accent); font-size: 17px; padding: 0; }
+.group-label { font-size: 13px; color: var(--label-2); text-transform: uppercase; letter-spacing: .02em; padding-inline: 16px; }
+.group-foot { font-size: 13px; color: var(--label-2); padding-inline: 16px; line-height: 1.4; }
+
+.card { background: var(--card); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); min-width: 0; }
+.group { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+.cell { position: relative; display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 11px 16px; width: 100%; background: none; border: 0; text-align: left; color: var(--label); }
+.cell + .cell::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: .5px; background: var(--sep); }
+.cell.indent + .cell.indent::before { left: 60px; }
+button.cell { transition: background .15s ease; }
+button.cell:active { background: var(--fill); }
+.cell-main { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.cell-title { font-size: 17px; line-height: 1.3; }
+.cell-sub { font-size: 14px; color: var(--label-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cell-value { color: var(--label-2); font-size: 17px; white-space: nowrap; }
+.chev { width: 8px; height: 14px; color: var(--label-3); }
+.cell.danger { color: var(--red); justify-content: center; }
+.cell.action { color: var(--accent); }
+.cell-icon { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: #fff; flex: none; }
+
+/* Botões */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 14px; min-height: 50px; padding: 0 22px; font-size: 17px; font-weight: 600; transition: transform .35s var(--spring), opacity .15s ease; }
+.btn:active { transform: scale(.96); }
+.btn-fill { background: var(--accent); color: var(--on-accent); }
+.btn-tint { background: var(--accent-soft); color: var(--accent); }
+.btn-plain { background: none; color: var(--accent); min-height: 44px; padding: 0 8px; font-weight: 400; }
+.btn-small { min-height: 34px; border-radius: 17px; padding: 0 14px; font-size: 15px; }
+.btn-block { width: 100%; }
+.btn[disabled] { opacity: .35; pointer-events: none; }
+
+/* Hoje: anel da semana */
+.hero { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: center; padding: 18px; }
+.ring-wrap { position: relative; width: 118px; height: 118px; }
+.ring-wrap svg { width: 118px; height: 118px; transform: rotate(-90deg); }
+.ring-track { fill: none; stroke: var(--accent-soft); stroke-width: 14; }
+.ring-prog { fill: none; stroke: url(#ringGrad); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset .9s var(--spring); }
+.ring-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ring-center b { font-family: var(--f-round); font-size: 34px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.ring-center span { font-size: 12px; color: var(--label-2); margin-top: 3px; }
+.hero-stats { display: grid; gap: 10px; min-width: 0; }
+.hs { display: grid; gap: 0; }
+.hs-k { font-size: 13px; font-weight: 600; color: var(--label); }
+.hs-v { font-family: var(--f-round); font-size: 24px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.hs-v small { font-size: 15px; font-weight: 600; color: var(--label-2); }
+.hs-v.a { color: var(--accent); } .hs-v.o { color: var(--orange); }
+@media (max-width: 360px) { .hero { grid-template-columns: minmax(0,1fr); justify-items: center; } .hero-stats { justify-items: center; text-align: center; } }
+
+/* Cartão "fugindo agora" */
+.sos { position: relative; overflow: hidden; border-radius: 20px; padding: 20px; color: #fff; background: radial-gradient(120% 140% at 100% 0%, #1E6B5C 0%, #0E2E28 45%, #081714 100%); display: grid; gap: 12px; }
+.sos .kick { font-size: 13px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: rgba(255,255,255,.62); }
+.sos h2 { font-size: 24px; font-weight: 700; line-height: 1.18; max-width: 18ch; }
+.sos p { font-size: 15px; color: rgba(255,255,255,.72); max-width: 40ch; }
+.sos .btn { background: #fff; color: #0B2F28; justify-self: start; }
+.sos svg.deco { position: absolute; right: -8px; top: 14px; width: 150px; opacity: .28; }
+
+/* Agenda */
+.when { width: 58px; flex: none; display: grid; gap: 1px; }
+.when b { font-family: var(--f-round); font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.when span { font-size: 12px; color: var(--label-2); }
+.late .when b, .late .when span { color: var(--orange); }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.dot.done { background: var(--accent); } .dot.part { background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--accent); } .dot.miss { box-shadow: inset 0 0 0 2px var(--orange); } .dot.plan { box-shadow: inset 0 0 0 2px var(--label-3); }
+
+/* Onboarding */
+.onboard { display: grid; gap: 14px; justify-items: start; padding: 22px 18px; }
+.onboard h2 { font-size: 22px; font-weight: 700; }
+.onboard p { color: var(--label-2); font-size: 15px; line-height: 1.45; }
+.onboard .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* Tags */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { display: inline-flex; align-items: center; font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--fill); color: var(--label); white-space: nowrap; }
+.tag.a { background: var(--accent-soft); color: var(--accent); }
+.tag.o { background: var(--orange-soft); color: var(--orange); }
+.tag.ex { background: transparent; box-shadow: inset 0 0 0 1px var(--label-3); color: var(--label-2); }
+
+/* Prova */
+.proof { display: grid; gap: 12px; }
+.pp { display: grid; gap: 10px; }
+.pp-row { display: grid; gap: 2px; }
+.pp-k { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--label-2); }
+.pp-v { font-size: 16px; line-height: 1.4; }
+.pp-v.prev { color: var(--label-2); }
+.pp-v.struck { text-decoration: line-through; text-decoration-color: var(--orange); text-decoration-thickness: 1.5px; }
+.anx { font-size: 14px; color: var(--label-2); line-height: 1.5; }
+.anx b { font-family: var(--f-round); color: var(--label); font-size: 16px; }
+.lesson { font-family: var(--f-serif); font-style: italic; font-size: 19px; line-height: 1.35; }
+
+/* Fugas */
+.segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--fill); border-radius: 9px; padding: 2px; gap: 2px; }
+.segmented button { border: 0; background: none; border-radius: 7px; padding: 6px 4px; font-size: 13px; font-weight: 500; color: var(--label); white-space: nowrap; transition: background .2s ease; }
+.segmented button[aria-pressed="true"] { background: var(--card); box-shadow: 0 3px 8px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04); font-weight: 600; }
+@media (prefers-color-scheme: dark) { .segmented button[aria-pressed="true"] { background: #636366; } }
+.fuga-card { display: grid; gap: 12px; text-align: left; border: 0; width: 100%; color: var(--label); transition: transform .35s var(--spring); }
+.fuga-card:active { transform: scale(.985); }
+.fuga-card h3 { font-size: 19px; font-weight: 600; line-height: 1.28; }
+.fuga-meta { font-size: 14px; color: var(--label-2); line-height: 1.4; }
+.fuga-foot { display: flex; align-items: center; gap: 10px; border-top: .5px solid var(--sep); padding-top: 12px; font-size: 14px; color: var(--label-2); }
+.fuga-foot b { color: var(--label); font-weight: 600; }
+.fuga-foot .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Pauta dos degraus */
+.staff svg { width: 100%; height: 54px; display: block; }
+.staff .l { stroke: var(--sep); stroke-width: 1; }
+.staff .n-done { fill: var(--accent); }
+.staff .n-part { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.6; }
+.staff .n-plan { fill: var(--card); stroke: var(--label-2); stroke-width: 1.5; }
+.staff .n-miss { fill: none; stroke: var(--orange); stroke-width: 1.6; }
+.staff .s-done { stroke: var(--accent); stroke-width: 1.5; }
+.staff .s-plan { stroke: var(--label-2); stroke-width: 1.2; }
+.staff .s-miss { stroke: var(--orange); stroke-width: 1.2; }
+.staff-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--label-2); margin-top: 4px; }
+.staff-legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+/* Provas */
+.verdict { font-family: var(--f-serif); font-size: 26px; line-height: 1.22; font-weight: 600; }
+.verdict em { color: var(--accent); font-style: italic; }
+.dumb { display: grid; gap: 14px; }
+.dumb-row { display: grid; gap: 6px; }
+.dumb-lab { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+.dumb-lab b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.dumb-lab span { color: var(--label-2); font-family: var(--f-round); white-space: nowrap; }
+.track { position: relative; height: 18px; }
+.track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 4px; transform: translateY(-50%); border-radius: 2px; background: var(--fill); }
+.track .seg { position: absolute; top: 50%; height: 4px; transform: translateY(-50%); border-radius: 2px; background: var(--label-3); }
+.track .pt { position: absolute; top: 50%; width: 16px; height: 16px; border-radius: 50%; transform: translate(-50%, -50%); }
+.track .pt.exp { background: var(--card); box-shadow: inset 0 0 0 3px var(--orange); }
+.track .pt.real { background: var(--accent); box-shadow: 0 0 0 2px var(--card); }
+.axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--label-2); font-family: var(--f-round); }
+.legend { display: flex; gap: 16px; font-size: 13px; color: var(--label-2); flex-wrap: wrap; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.legend i.exp { box-shadow: inset 0 0 0 3px var(--orange); } .legend i.real { background: var(--accent); }
+
+/* Detalhe */
+.detail-title { font-size: 28px; font-weight: 700; line-height: 1.18; }
+.kv-cell { display: grid; gap: 3px; padding: 12px 16px; position: relative; }
+.kv-cell + .kv-cell::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: .5px; background: var(--sep); }
+.kv-cell .k { font-size: 13px; color: var(--label-2); }
+.kv-cell .v { font-size: 16px; line-height: 1.4; }
+.mv { display: grid; grid-template-columns: 14px minmax(0,1fr); gap: 12px; padding: 12px 16px; position: relative; align-items: start; }
+.mv + .mv::before { content: ""; position: absolute; top: 0; left: 42px; right: 0; height: .5px; background: var(--sep); }
+.mv .dot { margin-top: 5px; }
+.mv-body { display: grid; gap: 4px; min-width: 0; }
+.mv-body b { font-weight: 600; font-size: 16px; }
+.mv-body .meta { font-size: 13px; color: var(--label-2); }
+.mv-body .txt { font-size: 15px; }
+.mv-body .btn { justify-self: start; margin-top: 4px; }
+
+/* Método */
+.prose { display: grid; gap: 10px; font-size: 16px; line-height: 1.5; }
+.prose ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.cycle svg { width: 100%; max-width: 380px; height: auto; display: block; margin: 0 auto; }
+.cycle text { font-family: var(--f); font-size: 13px; fill: var(--label); }
+.cycle .node { fill: var(--card-2); }
+.cycle .node.hot { fill: var(--orange-soft); }
+.cycle .arc { fill: none; stroke: var(--label-3); stroke-width: 1.6; }
+.cycle .arrow { fill: var(--label-3); }
+.quote { font-family: var(--f-serif); font-style: italic; font-size: 22px; line-height: 1.3; }
+
+/* Ajustes */
+.stepper { display: inline-flex; background: var(--fill); border-radius: 9px; overflow: hidden; }
+.stepper button { width: 46px; height: 32px; border: 0; background: none; font-size: 20px; color: var(--label); }
+.stepper button + button { border-left: .5px solid var(--sep); }
+.stepper button:active { background: var(--fill-2); }
+
+/* Barra de abas */
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--bar); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); box-shadow: 0 -.5px 0 var(--sep); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.tabbar-inner { max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); height: 52px; }
+.tab { border: 0; background: none; display: grid; justify-items: center; align-content: center; gap: 2px; color: var(--label-2); font-size: 10px; font-weight: 500; letter-spacing: 0; padding-top: 4px; }
+.tab svg { width: 26px; height: 26px; }
+.tab[aria-current="page"] { color: var(--accent); }
+.tab:active svg { transform: scale(.9); }
+.tab svg { transition: transform .3s var(--spring); }
+
+/* Folhas */
+.sheet-back { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.32); display: flex; align-items: flex-end; justify-content: center; }
+.sheet { width: 100%; max-width: 640px; max-height: calc(100% - env(safe-area-inset-top, 0px) - 10px); background: var(--bg); border-radius: 14px 14px 0 0; box-shadow: var(--sheet-shadow); display: flex; flex-direction: column; overflow: hidden; }
+.sheet-back.enter { animation: fadeIn .25s ease both; }
+.sheet-back.enter .sheet { animation: slideUp .42s cubic-bezier(.2, .9, .25, 1) both; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+@media (min-width: 700px) { .sheet-back { align-items: center; padding: 24px; } .sheet { border-radius: 14px; max-height: 88vh; } }
+.grabber { width: 36px; height: 5px; border-radius: 3px; background: var(--label-3); margin: 6px auto 0; flex: none; }
+.sheet-nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 4px 8px 6px; flex: none; }
+.sheet-nav .nav-btn:last-child { justify-self: end; font-weight: 600; }
+.sheet-nav .nav-btn[disabled] { color: var(--label-3); }
+.sheet-title { font-weight: 600; font-size: 17px; text-align: center; }
+.dots { display: flex; gap: 6px; justify-content: center; padding-bottom: 6px; flex: none; }
+.dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--fill-2); transition: background .2s ease, width .3s var(--spring); }
+.dots i.on { background: var(--accent); width: 20px; border-radius: 4px; }
+.sheet-body { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 10px 16px calc(28px + env(safe-area-inset-bottom, 0px)); display: grid; grid-auto-rows: max-content; gap: 22px; align-content: start; flex: 1 1 auto; min-height: 0; }
+.q { font-size: 28px; font-weight: 700; line-height: 1.16; }
+.help { font-size: 15px; color: var(--label-2); line-height: 1.45; }
+.field { display: grid; gap: 7px; }
+.field-label { font-size: 13px; color: var(--label-2); text-transform: uppercase; letter-spacing: .02em; padding-inline: 16px; }
+.field-foot { font-size: 13px; color: var(--label-2); padding-inline: 16px; line-height: 1.4; }
+.input { width: 100%; background: var(--card); border: 0; border-radius: 12px; padding: 13px 16px; font-size: 17px; line-height: 1.4; color: var(--label); }
+textarea.input { min-height: 96px; resize: none; }
+.input::placeholder { color: var(--label-3); }
+.input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 0; background: var(--card); border-radius: 18px; padding: 8px 14px; font-size: 15px; color: var(--label); box-shadow: var(--shadow); transition: transform .3s var(--spring), background .15s ease; }
+.chip:active { transform: scale(.94); }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.slider-card { background: var(--card); border-radius: 12px; padding: 12px 16px; display: grid; gap: 4px; }
+.slider-row { display: grid; grid-template-columns: minmax(0,1fr) 40px; gap: 14px; align-items: center; }
+.slider-row output { font-family: var(--f-round); font-size: 28px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.slider-scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--label-2); margin-right: 54px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); height: 28px; }
+.sizes { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 6px; }
+.sizes button { border: 0; background: var(--card); border-radius: 12px; padding: 10px 0 8px; display: grid; justify-items: center; gap: 2px; font-size: 11px; color: var(--label-2); }
+.sizes button b { font-family: var(--f-round); font-size: 22px; color: var(--label); }
+.sizes button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.sizes button[aria-pressed="true"] b { color: var(--on-accent); }
+.radio .cell .check { width: 18px; height: 18px; color: var(--accent); visibility: hidden; }
+.radio .cell[aria-checked="true"] .check { visibility: visible; }
+.switch { position: relative; width: 51px; height: 31px; flex: none; }
+.switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.switch span { position: absolute; inset: 0; border-radius: 16px; background: var(--fill-2); transition: background .25s ease; pointer-events: none; }
+.switch span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.15), 0 1px 1px rgba(0,0,0,.16); transition: transform .35s var(--spring); }
+.switch input:checked + span { background: #34C759; }
+.switch input:checked + span::after { transform: translateX(20px); }
+.ref { background: var(--card); border-radius: 12px; padding: 12px 16px; display: grid; gap: 3px; }
+.ref .k { font-size: 12px; font-weight: 600; color: var(--label-2); text-transform: uppercase; letter-spacing: .03em; }
+.ref b { font-weight: 600; }
+.ref .s { font-size: 14px; color: var(--label-2); }
+.err { color: var(--red); font-size: 14px; padding-inline: 16px; }
+.done-view { display: grid; gap: 14px; justify-items: center; text-align: center; padding: 18px 8px 8px; }
+.done-view .badge { width: 72px; height: 72px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+.done-view h2 { font-size: 24px; font-weight: 700; }
+.done-view p { color: var(--label-2); font-size: 15px; max-width: 34ch; line-height: 1.45; }
+
+/* Alerta */
+.alert-back { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.3); display: grid; place-items: center; padding: 24px; animation: fadeIn .2s ease both; }
+.alert { width: 270px; background: var(--bar); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); border-radius: 14px; overflow: hidden; text-align: center; animation: pop .3s var(--spring) both; }
+@keyframes pop { from { transform: scale(1.15); opacity: 0; } to { transform: none; opacity: 1; } }
+.alert-body { padding: 18px 16px 16px; display: grid; gap: 4px; }
+.alert-body b { font-size: 17px; font-weight: 600; }
+.alert-body span { font-size: 13px; line-height: 1.35; }
+.alert-actions { display: grid; grid-template-columns: 1fr 1fr; border-top: .5px solid var(--sep); }
+.alert-actions button { border: 0; background: none; padding: 12px; font-size: 17px; color: var(--accent); }
+.alert-actions button + button { border-left: .5px solid var(--sep); }
+.alert-actions button.destructive { color: var(--red); font-weight: 600; }
+
+/* Modo 15 minutos: sempre escuro, como um cronômetro */
+.sprint { position: fixed; inset: 0; z-index: 70; background: #000; color: #fff; overflow-y: auto; padding: calc(12px + env(safe-area-inset-top, 0px)) 20px calc(24px + env(safe-area-inset-bottom, 0px)); color-scheme: dark; }
+.sprint.enter { animation: slideUp .45s cubic-bezier(.2,.9,.25,1) both; }
+.sp-in { max-width: 520px; margin: 0 auto; display: grid; grid-auto-rows: max-content; gap: 22px; }
+.sp-top { display: flex; justify-content: space-between; align-items: center; height: 44px; }
+.sp-top .kick { font-size: 13px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: rgba(235,235,245,.6); }
+.sp-top .nav-btn { color: #3DD6B3; }
+.sprint h2 { font-size: 30px; font-weight: 700; line-height: 1.15; }
+.sprint .help { color: rgba(235,235,245,.62); }
+.sprint .field-label { color: rgba(235,235,245,.6); }
+.sprint .input { background: #1C1C1E; color: #fff; }
+.sprint .input::placeholder { color: rgba(235,235,245,.3); }
+.sprint .chip { background: #1C1C1E; color: #fff; box-shadow: none; }
+.sprint .chip[aria-pressed="true"] { background: #3DD6B3; color: #00261E; }
+.sprint .btn-fill { background: #3DD6B3; color: #00261E; }
+.ring-big { position: relative; display: grid; place-items: center; margin-top: 8px; }
+.ring-big svg { width: min(76vw, 300px); height: auto; transform: rotate(-90deg); }
+.ring-big .bgc { fill: none; stroke: #1C1C1E; stroke-width: 14; }
+.ring-big .fgc { fill: none; stroke: url(#spGrad); stroke-width: 14; stroke-linecap: round; }
+.ring-big .time { position: absolute; display: grid; justify-items: center; gap: 4px; }
+.ring-big .time b { font-family: var(--f-round); font-size: 64px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -.02em; line-height: 1; }
+.ring-big .time span { font-size: 13px; color: rgba(235,235,245,.6); }
+.target { font-family: var(--f-serif); font-style: italic; font-size: 22px; line-height: 1.3; text-align: center; }
+.circle-actions { display: flex; justify-content: space-between; padding-inline: 8px; }
+.circle-btn { width: 80px; height: 80px; border-radius: 50%; border: 0; font-size: 15px; font-weight: 500; display: grid; place-items: center; box-shadow: 0 0 0 3px #000, 0 0 0 5px var(--c-ring); transition: transform .35s var(--spring); }
+.circle-btn:active { transform: scale(.93); }
+.circle-btn.gray { background: #333336; color: #fff; --c-ring: #333336; }
+.circle-btn.go { background: #0E3B31; color: #3DD6B3; --c-ring: #0E3B31; }
+.sp-choices { display: grid; gap: 10px; }
+.sp-choices button { border: 0; background: #1C1C1E; color: #fff; border-radius: 14px; padding: 16px; font-size: 17px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+.sp-choices button[aria-pressed="true"] { box-shadow: inset 0 0 0 2px #3DD6B3; }
+
+/* Aviso */
+.toast { position: fixed; left: 50%; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 90; background: var(--bar); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); color: var(--label); padding: 12px 18px; border-radius: 16px; font-size: 15px; font-weight: 500; box-shadow: 0 8px 30px rgba(0,0,0,.18); max-width: min(92vw, 460px); text-align: center; animation: toastIn .45s var(--spring) both; }
+@keyframes toastIn { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .18s; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" style="stop-color:var(--ring-a)"/><stop offset="100%" style="stop-color:var(--ring-b)"/></linearGradient>
+    <linearGradient id="spGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7CF8DA"/><stop offset="100%" stop-color="#1FB28F"/></linearGradient>
+  </defs>
+</svg>
+
+<header class="navbar" id="navbar">
+  <div class="nav-inner"><div class="nav-left" id="navLeft"></div><div class="nav-title" id="navTitle"></div><div class="nav-right" id="navRight"></div></div>
+</header>
+
+<main id="main"></main>
+
+<nav class="tabbar" aria-label="Seções">
+  <div class="tabbar-inner">
+    <button class="tab" data-tab="hoje"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13" cy="13" r="9" opacity=".32"/><path d="M13 4a9 9 0 0 1 8.4 12.2"/><circle cx="13" cy="13" r="2.4" fill="currentColor" stroke="none"/></svg>Hoje</button>
+    <button class="tab" data-tab="fugas"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h5v-5h5v-5h5V6h3"/></svg>Fugas</button>
+    <button class="tab" data-tab="provas"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="16" height="19" rx="3.5"/><path d="M9.5 13.2l2.4 2.4 4.6-5"/></svg>Provas</button>
+    <button class="tab" data-tab="ajustes"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h11M21 8h1M4 18h4M14 18h8"/><circle cx="18" cy="8" r="2.6"/><circle cx="11" cy="18" r="2.6"/></svg>Ajustes</button>
+  </div>
+</nav>
+
+<div id="sheetRoot"></div>
+<div id="sprintRoot"></div>
+<div id="alertRoot"></div>
+<div id="toastRoot"></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<script>
+(function () {
+  "use strict";
+
+  var VERSION = "2.0";
+  var KEY = "contrafuga:v1";
+  var AREAS = ["Trabalho", "Clientes", "Finanças", "Relações", "Saúde", "Pessoal"];
+  var SENTIMENTOS = ["Ansiedade", "Vergonha", "Culpa", "Rejeição", "Incerteza", "Frustração", "Medo de errar", "Conflito"];
+  var FUGAS = ["Adiar para depois", "Preparar ou revisar demais", "Esperar o momento certo", "Me ocupar com tarefas menores", "Pedir garantia ou revisão", "Passar para outra pessoa", "Ficar em silêncio", "Cancelar ou arrumar desculpa", "Me distrair (celular, séries)"];
+  var CUSTOS = ["Dinheiro", "Clientes", "Relações", "Saúde", "Tempo", "Autonomia", "Reputação"];
+  var DEGRAU = ["", "Leve", "Tranquilo", "Médio", "Puxado", "Pesado"];
+  var STATUS_LABEL = { feito: "Feito", parcial: "Feito em parte", nao_feito: "Não feito", planejado: "Marcado" };
+  var REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Armazenamento no aparelho ---------- */
+  function emptyData() { return { fugas: [], sprints: [], settings: { meta: 5 } }; }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return emptyData();
+      var d = JSON.parse(raw);
+      d.fugas = Array.isArray(d.fugas) ? d.fugas : [];
+      d.sprints = Array.isArray(d.sprints) ? d.sprints : [];
+      d.settings = d.settings || { meta: 5 };
+      if (!d.settings.meta) d.settings.meta = 5;
+      return d;
+    } catch (e) { return emptyData(); }
+  }
+  var storageOk = true;
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(S.data)); storageOk = true; }
+    catch (e) { storageOk = false; toast("Não consegui salvar neste aparelho. Exporte um backup em Ajustes."); }
+    if (!persist.asked && navigator.storage && navigator.storage.persist) { persist.asked = true; try { navigator.storage.persist(); } catch (e) {} }
+  }
+
+  var S = { data: load(), tab: "hoje", detail: null, metodo: false, filtro: "ativa" };
+  try { var lastTab = localStorage.getItem(KEY + ":tab"); if (lastTab) S.tab = lastTab; } catch (e) {}
+
+  /* ---------- Utilidades ---------- */
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function uid() { try { return crypto.randomUUID().replace(/-/g, "").slice(0, 16); } catch (e) { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); } }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function toLocalInput(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function fromLocalInput(v) { if (!v) return null; var d = new Date(v); return isNaN(d) ? null : d.toISOString(); }
+  function dayKey(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function dayDiff(a, b) { var A = new Date(a.getFullYear(), a.getMonth(), a.getDate()), B = new Date(b.getFullYear(), b.getMonth(), b.getDate()); return Math.round((A - B) / 86400000); }
+  function hhmm(d) { return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function dayWord(iso) {
+    var d = new Date(iso), dd = dayDiff(d, new Date());
+    if (dd === 0) return "Hoje"; if (dd === 1) return "Amanhã"; if (dd === -1) return "Ontem";
+    return d.toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "short" }).replace(/\./g, "");
+  }
+  function whenLabel(iso) { return iso ? dayWord(iso) + ", " + hhmm(new Date(iso)) : ""; }
+  function dateShort(iso) { return iso ? new Date(iso).toLocaleDateString("pt-BR", { day: "numeric", month: "short" }).replace(/\./g, "") : ""; }
+  function nextHour() { var d = new Date(); d.setMinutes(0, 0, 0); d.setHours(d.getHours() + 1); return d; }
+  function tomorrowAt(h) { var d = new Date(); d.setDate(d.getDate() + 1); d.setHours(h, 0, 0, 0); return d; }
+  function plural(n, a, b) { return n === 1 ? a : b; }
+  function daysAgo(n, h) { var d = new Date(); d.setDate(d.getDate() - n); d.setHours(h || 10, 0, 0, 0); return d.toISOString(); }
+
+  var CHEV = '<svg class="chev" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5L6.5 7l-5 5.5"/></svg>';
+  var CHECK = '<svg class="check" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg>';
+  var BACK = '<svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L2 10l8 8"/></svg>';
+  var PLUS = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M8 2v12M2 8h12"/></svg>';
+
+  function toast(msg) {
+    var root = $("#toastRoot");
+    root.innerHTML = '<div class="toast" role="status">' + esc(msg) + "</div>";
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { root.innerHTML = ""; }, 3400);
+  }
+  function transition(fn) {
+    if (document.startViewTransition && !REDUCED) { try { document.startViewTransition(fn); return; } catch (e) {} }
+    fn();
+  }
+
+  /* ---------- Dados derivados ---------- */
+  function fugas() { return S.data.fugas; }
+  function findFuga(id) { for (var i = 0; i < fugas().length; i++) if (fugas()[i].id === id) return fugas()[i]; return null; }
+  function movs() { var out = []; fugas().forEach(function (f) { (f.movimentos || []).forEach(function (m) { out.push({ m: m, f: f }); }); }); return out; }
+  function checkins() { return movs().filter(function (x) { return x.m.checkin; }).sort(function (a, b) { return new Date(b.m.checkin.data) - new Date(a.m.checkin.data); }); }
+  function approachDates() {
+    var ev = [];
+    movs().forEach(function (x) { var c = x.m.checkin; if (c && (c.fiz === "sim" || c.fiz === "parcial")) ev.push(new Date(c.data)); });
+    S.data.sprints.forEach(function (s) { if (s.resultado === "sim" || s.resultado === "parcial") ev.push(new Date(s.createdAt)); });
+    return ev;
+  }
+  function streak() {
+    var days = {}; approachDates().forEach(function (d) { days[dayKey(d)] = 1; });
+    var d = new Date(); if (!days[dayKey(d)]) d.setDate(d.getDate() - 1);
+    var n = 0; while (days[dayKey(d)]) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+  function weekCount() { var lim = Date.now() - 7 * 86400000; return approachDates().filter(function (d) { return d.getTime() >= lim; }).length; }
+  function predictionStats() {
+    var list = checkins().filter(function (x) { return x.m.checkin.previsao; });
+    var nao = list.filter(function (x) { return x.m.checkin.previsao === "nao"; }).length;
+    var parte = list.filter(function (x) { return x.m.checkin.previsao === "em_parte"; }).length;
+    return { total: list.length, nao: nao, parte: parte, sim: list.length - nao - parte };
+  }
+  function planned() {
+    return movs().filter(function (x) { return x.m.status === "planejado" && (x.f.status || "ativa") === "ativa"; })
+      .sort(function (a, b) { return new Date(a.m.quando) - new Date(b.m.quando); });
+  }
+  function hasExamples() { return fugas().some(function (f) { return f.exemplo; }); }
+
+  function saveFuga(f) {
+    f = clone(f); f.updatedAt = new Date().toISOString();
+    var i = fugas().findIndex(function (x) { return x.id === f.id; });
+    if (i >= 0) fugas()[i] = f; else fugas().push(f);
+    persist(); render();
+  }
+  function deleteFuga(id) { S.data.fugas = fugas().filter(function (f) { return f.id !== id; }); persist(); }
+
+  /* ---------- Exemplos ---------- */
+  function loadExamples() {
+    var ex1 = { id: "exemplo-proposta", exemplo: true, status: "ativa", createdAt: daysAgo(3), updatedAt: daysAgo(2, 17),
+      situacao: "Enviar a proposta comercial que está pronta há uma semana", area: "Clientes", sentimentos: ["Rejeição", "Incerteza"],
+      previsao: "O cliente vai achar caro e parar de responder.", intensidade: 7, fugas: ["Preparar ou revisar demais", "Me ocupar com tarefas menores"],
+      muleta: "Mandaria com uma vírgula fora do lugar. Ninguém ia perceber.", custoTags: ["Dinheiro", "Clientes"],
+      custo: "Cada semana parada é receita que não entra e o cliente esfriando.", importa: "Crescer com clientes que valorizam o trabalho.",
+      movimentos: [
+        { id: "ex1m1", criadoEm: daysAgo(3), passo: "Mandar a proposta sem a terceira revisão", quando: daysAgo(2, 10), dificuldade: 2, ansiedadeEsperada: 7, status: "feito",
+          checkin: { data: daysAgo(2, 17), fiz: "sim", ansiedade: 5, criterio: "sim", previsao: "nao", diferente: "Respondeu no mesmo dia pedindo uma reunião para fechar o escopo.", lidei: "nada", aprendizado: "A revisão extra era muleta, não qualidade." } },
+        { id: "ex1m2", criadoEm: daysAgo(2, 17), passo: "Ligar para marcar a reunião de fechamento", quando: tomorrowAt(10).toISOString(), dificuldade: 3, ansiedadeEsperada: 6, status: "planejado" }
+      ] };
+    var ex2 = { id: "exemplo-retorno", exemplo: true, status: "ativa", createdAt: daysAgo(5), updatedAt: daysAgo(1, 19),
+      situacao: "Dar um retorno direto para alguém da equipe sobre uma entrega abaixo do combinado", area: "Trabalho", sentimentos: ["Conflito", "Culpa"],
+      previsao: "A pessoa vai ficar magoada e o clima vai pesar.", intensidade: 6, fugas: ["Esperar o momento certo", "Ficar em silêncio"], muleta: "",
+      custoTags: ["Relações", "Tempo"], custo: "Eu refaço o trabalho no lugar dela e o problema se repete todo mês.", importa: "Um time que entrega sem depender de mim para tudo.",
+      movimentos: [
+        { id: "ex2m1", criadoEm: daysAgo(5), passo: "Marcar 15 minutos na agenda com a pessoa", quando: daysAgo(4, 9), dificuldade: 1, ansiedadeEsperada: 5, status: "feito",
+          checkin: { data: daysAgo(4, 9), fiz: "sim", ansiedade: 3, criterio: "sim", previsao: "nao", diferente: "Aceitou na hora e já perguntou se era sobre a entrega.", lidei: "nada", aprendizado: "Marcar já tirou metade do peso." } },
+        { id: "ex2m2", criadoEm: daysAgo(4, 9), passo: "Fazer a conversa com dois exemplos concretos", quando: daysAgo(1, 14), dificuldade: 4, ansiedadeEsperada: 8, status: "parcial",
+          checkin: { data: daysAgo(1, 19), fiz: "parcial", ansiedade: 7, criterio: "sim", previsao: "em_parte", diferente: "Ficou chateada no começo, mas no fim propôs um checklist de entrega.", lidei: "sim", aprendizado: "Desconforto no começo não é sinal de que deu errado." } },
+        { id: "ex2m3", criadoEm: daysAgo(1, 19), passo: "Revisar o checklist junto", quando: tomorrowAt(15).toISOString(), dificuldade: 2, ansiedadeEsperada: 3, status: "planejado" }
+      ] };
+    S.data.fugas = fugas().filter(function (f) { return !f.exemplo; }).concat([ex1, ex2]);
+    persist();
+  }
+
+  /* ---------- Pauta dos degraus ---------- */
+  function staffSVG(ms) {
+    var list = (ms || []).slice().sort(function (a, b) { return new Date(a.quando || a.criadoEm) - new Date(b.quando || b.criadoEm); }).slice(-12);
+    var W = 260, top = 10, gap = 8, lines = "", notes = "";
+    for (var i = 0; i < 5; i++) lines += '<line class="l" x1="0" x2="' + W + '" y1="' + (top + i * gap) + '" y2="' + (top + i * gap) + '"/>';
+    var step = list.length > 1 ? Math.min(36, (W - 34) / (list.length - 1)) : 0;
+    list.forEach(function (m, idx) {
+      var d = Math.max(1, Math.min(5, m.dificuldade || 2)), y = top + (5 - d) * gap, x = 16 + idx * step;
+      var cls = m.status === "feito" ? "n-done" : m.status === "parcial" ? "n-part" : m.status === "nao_feito" ? "n-miss" : "n-plan";
+      var st = m.status === "nao_feito" ? "s-miss" : m.status === "planejado" ? "s-plan" : "s-done";
+      notes += '<line class="' + st + '" x1="' + (x + 5.4) + '" x2="' + (x + 5.4) + '" y1="' + y + '" y2="' + (y - 21) + '"/>';
+      notes += '<ellipse class="' + cls + '" cx="' + x + '" cy="' + y + '" rx="6" ry="4.4" transform="rotate(-22 ' + x + " " + y + ')"/>';
+    });
+    var done = list.filter(function (m) { return m.status === "feito" || m.status === "parcial"; }).length;
+    return '<div class="staff"><svg viewBox="0 0 ' + W + ' 54" preserveAspectRatio="xMinYMid meet" role="img" aria-label="' + list.length + " degraus, " + done + ' feitos">' + lines + notes + "</svg></div>";
+  }
+  function staffLegend() {
+    return '<div class="staff-legend"><span><i class="dot done"></i>feito</span><span><i class="dot plan"></i>marcado</span><span><i class="dot miss"></i>não feito</span><span>altura = tamanho do passo</span></div>';
+  }
+
+  /* ---------- Navegação ---------- */
+  function setNav(title, left, right, always) {
+    $("#navTitle").textContent = title || "";
+    $("#navLeft").innerHTML = left || "";
+    $("#navRight").innerHTML = right || "";
+    $("#navbar").classList.toggle("always", !!always);
+  }
+  function onScroll() { $("#navbar").classList.toggle("scrolled", window.scrollY > 30); }
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  function render() {
+    $$(".tab").forEach(function (b) { if (b.dataset.tab === S.tab) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+    var html;
+    if (S.tab === "fugas" && S.detail && findFuga(S.detail)) html = viewDetail(findFuga(S.detail));
+    else if (S.tab === "ajustes" && S.metodo) html = viewMetodo();
+    else if (S.tab === "hoje") html = viewHoje();
+    else if (S.tab === "fugas") { S.detail = null; html = viewFugas(); }
+    else if (S.tab === "provas") html = viewProvas();
+    else html = viewAjustes();
+    $("#main").innerHTML = html;
+    onScroll();
+    requestAnimationFrame(function () { var r = $(".ring-prog"); if (r && r.dataset.to) r.style.strokeDashoffset = r.dataset.to; });
+  }
+
+  /* ---------- Telas ---------- */
+  function largeHead(title, kicker) {
+    return '<div class="large-head">' + (kicker ? '<div class="date-kicker">' + esc(kicker) + "</div>" : "") + '<h1 class="large-title">' + esc(title) + "</h1></div>";
+  }
+  var ADD_BTN = '<button class="nav-btn icon" data-act="new" aria-label="Registrar fuga"><span>' + PLUS + "</span></button>";
+
+  function viewHoje() {
+    setNav("Hoje", "", ADD_BTN);
+    var now = new Date();
+    var h = '<div class="page">' + largeHead("Hoje", now.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" }));
+
+    var meta = S.data.settings.meta || 5, wk = weekCount(), st = streak(), ps = predictionStats();
+    var C = 2 * Math.PI * 50, prog = Math.min(1, wk / meta);
+    h += '<div class="card hero"><div class="ring-wrap"><svg viewBox="0 0 118 118" aria-hidden="true"><circle class="ring-track" cx="59" cy="59" r="50"/>' +
+      '<circle class="ring-prog" cx="59" cy="59" r="50" stroke-dasharray="' + C.toFixed(1) + '" style="stroke-dashoffset:' + C.toFixed(1) + '" data-to="' + (C * (1 - prog)).toFixed(1) + '"/></svg>' +
+      '<div class="ring-center"><b>' + wk + "</b><span>de " + meta + "</span></div></div>" +
+      '<div class="hero-stats"><div class="hs"><span class="hs-k">Aproximações na semana</span><span class="hs-v a">' + wk + "<small>/" + meta + "</small></span></div>" +
+      '<div class="hs"><span class="hs-k">Sequência</span><span class="hs-v o">' + st + "<small> " + plural(st, "dia", "dias") + "</small></span></div>" +
+      '<div class="hs"><span class="hs-k">Previsões que falharam</span><span class="hs-v">' + (ps.total ? (ps.nao + ps.parte) + "<small> de " + ps.total + "</small>" : "<small>sem dados</small>") + "</span></div></div></div>";
+
+    h += '<section class="sos"><svg class="deco" viewBox="0 0 150 56" aria-hidden="true">' +
+      [0, 1, 2, 3, 4].map(function (i) { return '<line x1="0" x2="150" y1="' + (8 + i * 9) + '" y2="' + (8 + i * 9) + '" stroke="#fff" stroke-width="1"/>'; }).join("") +
+      '<ellipse cx="30" cy="44" rx="6" ry="4.4" fill="#fff"/><ellipse cx="66" cy="35" rx="6" ry="4.4" fill="#fff"/><ellipse cx="102" cy="26" rx="6" ry="4.4" fill="#fff"/><ellipse cx="138" cy="17" rx="6" ry="4.4" fill="#fff"/></svg>' +
+      '<span class="kick">Modo 15 minutos</span><h2>Percebeu que está fugindo agora?</h2>' +
+      "<p>Nomeie o que está evitando e faça a versão de 15 minutos disso. O cronômetro segura você.</p>" +
+      '<button class="btn" data-act="sprint">Encarar agora</button></section>';
+
+    if (!fugas().length) {
+      h += '<div class="card onboard"><h2>Comece pela fuga que mais pesa</h2><p>Seis perguntas rápidas: o que você evita, o que não quer sentir, como foge, quanto custa, o que importa e qual o menor passo.</p>' +
+        '<div class="row"><button class="btn btn-fill" data-act="new">Registrar primeira fuga</button><button class="btn btn-plain" data-act="examples">Ver com exemplos</button></div></div>';
+    }
+
+    var pl = planned(), horizon = Date.now() + 7 * 86400000;
+    var show = pl.filter(function (x) { return new Date(x.m.quando).getTime() <= horizon; });
+    if (fugas().length) {
+      h += '<section class="section"><div class="section-head"><h2>Agenda</h2></div>';
+      if (!pl.length) h += '<div class="card onboard" style="padding:18px"><p>Nenhum passo marcado. Abra uma fuga e marque o próximo degrau.</p><button class="btn btn-tint btn-small" data-go="fugas">Ver fugas</button></div>';
+      else {
+        h += '<div class="group">';
+        show.forEach(function (x) {
+          var late = new Date(x.m.quando) < now;
+          h += '<button class="cell' + (late ? " late" : "") + '" data-act="checkin" data-f="' + x.f.id + '" data-m="' + x.m.id + '">' +
+            '<div class="when"><b>' + hhmm(new Date(x.m.quando)) + "</b><span>" + (late ? "Pendente" : esc(dayWord(x.m.quando))) + "</span></div>" +
+            '<div class="cell-main"><div class="cell-title">' + esc(x.m.passo) + '</div><div class="cell-sub">' + esc(x.f.situacao) + "</div></div>" + CHEV + "</button>";
+        });
+        if (!show.length) h += '<div class="cell"><div class="cell-main"><div class="cell-sub">Nada nos próximos 7 dias.</div></div></div>';
+        h += "</div>";
+        var rest = pl.length - show.length;
+        h += '<div class="group-foot">' + (rest > 0 ? "Mais " + rest + " " + plural(rest, "passo marcado", "passos marcados") + " depois disso. " : "") + "Toque em um passo para registrar o resultado.</div>";
+      }
+      h += "</section>";
+    }
+
+    var ck = checkins().filter(function (x) { return x.m.checkin.fiz !== "nao"; })[0];
+    if (ck) h += '<section class="section"><div class="section-head"><h2>Última prova</h2><button class="link" data-go="provas">Ver todas</button></div>' + proofCard(ck, false) + "</section>";
+
+    var sps = S.data.sprints.slice().sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); }).slice(0, 4);
+    if (sps.length) {
+      h += '<section class="section"><div class="section-head"><h2>Sessões de 15 min</h2></div><div class="group">';
+      sps.forEach(function (s) {
+        var cls = s.resultado === "sim" ? "done" : s.resultado === "parcial" ? "part" : "miss";
+        var lab = s.resultado === "sim" ? "Feito" : s.resultado === "parcial" ? "Em parte" : "Não fiz";
+        h += '<div class="cell"><i class="dot ' + cls + '"></i><div class="cell-main"><div class="cell-title">' + esc(s.versao || s.evitando) + '</div><div class="cell-sub">' + esc(whenLabel(s.createdAt)) + " · " + lab + "</div></div></div>";
+      });
+      h += "</div></section>";
+    }
+    return h + "</div>";
+  }
+
+  function proofCard(x, showSit) {
+    var c = x.m.checkin, f = x.f;
+    var verdict = c.previsao === "nao" ? '<span class="tag a">Previsão não se confirmou</span>' : c.previsao === "em_parte" ? '<span class="tag">Confirmou em parte</span>' : c.previsao === "sim" ? '<span class="tag o">Previsão se confirmou</span>' : "";
+    var lidei = { sim: "consegui lidar", mais_ou_menos: "lidei mais ou menos", nao: "não consegui lidar", nada: "nada de ruim aconteceu" }[c.lidei] || "";
+    return '<div class="card proof">' +
+      (showSit ? '<div class="pp-k">' + esc(dateShort(c.data)) + " · " + esc(f.situacao) + "</div>" : "") +
+      '<div class="tags">' + (f.exemplo ? '<span class="tag ex">Exemplo</span>' : "") + verdict + (c.criterio === "sim" ? '<span class="tag a">Agi com o desconforto</span>' : "") + "</div>" +
+      '<div class="pp"><div class="pp-row"><span class="pp-k">Passo</span><span class="pp-v">' + esc(x.m.passo) + "</span></div>" +
+      '<div class="pp-row"><span class="pp-k">Previ</span><span class="pp-v prev' + (c.previsao === "nao" ? " struck" : "") + '">' + esc(f.previsao || "Sem previsão registrada") + "</span></div>" +
+      '<div class="pp-row"><span class="pp-k">Aconteceu</span><span class="pp-v">' + esc(c.diferente || "Sem anotação") + "</span></div></div>" +
+      (typeof c.ansiedade === "number" ? '<div class="anx">Ansiedade esperada <b>' + (x.m.ansiedadeEsperada != null ? x.m.ansiedadeEsperada : "–") + "</b> · sentida <b>" + c.ansiedade + "</b>" + (lidei ? " · " + esc(lidei) : "") + "</div>" : "") +
+      (c.aprendizado ? '<p class="lesson">' + esc(c.aprendizado) + "</p>" : "") + "</div>";
+  }
+
+  function viewFugas() {
+    setNav("Fugas", "", ADD_BTN);
+    var h = '<div class="page">' + largeHead("Fugas");
+    var filters = [["ativa", "Ativas"], ["superada", "Superadas"], ["arquivada", "Arquivadas"], ["todas", "Todas"]];
+    h += '<div class="segmented" role="group" aria-label="Filtrar">' + filters.map(function (p) { return '<button data-filtro="' + p[0] + '" aria-pressed="' + (S.filtro === p[0]) + '">' + p[1] + "</button>"; }).join("") + "</div>";
+    if (hasExamples()) h += '<div class="group-foot">Os cartões marcados como Exemplo mostram como funciona. Apague em Ajustes quando quiser.</div>';
+    var list = fugas().filter(function (f) { return S.filtro === "todas" || (f.status || "ativa") === S.filtro; })
+      .sort(function (a, b) { return new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt); });
+    if (!list.length) {
+      h += '<div class="card onboard"><h2>' + (S.filtro === "ativa" ? "Nenhuma fuga ativa" : "Nada por aqui") + "</h2><p>" + (S.filtro === "ativa" ? "Pense numa situação concreta que você vem adiando e registre em seis perguntas." : "Quando você mudar o status de uma fuga, ela aparece aqui.") + "</p>" +
+        (S.filtro === "ativa" ? '<button class="btn btn-fill" data-act="new">Registrar fuga</button>' : "") + "</div>";
+      return h + "</div>";
+    }
+    h += '<div style="display:grid;gap:14px">';
+    list.forEach(function (f) {
+      var next = (f.movimentos || []).filter(function (m) { return m.status === "planejado"; }).sort(function (a, b) { return new Date(a.quando) - new Date(b.quando); })[0];
+      var st = f.status || "ativa";
+      h += '<button class="card fuga-card" data-act="detail" data-f="' + f.id + '">' +
+        '<div class="tags">' + (f.exemplo ? '<span class="tag ex">Exemplo</span>' : "") + (f.area ? '<span class="tag">' + esc(f.area) + "</span>" : "") +
+        (st !== "ativa" ? '<span class="tag ' + (st === "superada" ? "a" : "") + '">' + (st === "superada" ? "Superada" : "Arquivada") + "</span>" : "") +
+        (typeof f.intensidade === "number" ? '<span class="tag o">Mobiliza ' + f.intensidade + "/10</span>" : "") + "</div>" +
+        "<h3>" + esc(f.situacao) + "</h3>" +
+        ((f.sentimentos || []).length || (f.fugas || []).length ? '<div class="fuga-meta">' + esc([(f.sentimentos || []).join(", "), (f.fugas || []).join(", ")].filter(Boolean).join(" · ")) + "</div>" : "") +
+        staffSVG(f.movimentos) +
+        '<div class="fuga-foot"><span class="grow">' + (next ? "Próximo: <b>" + esc(next.passo) + "</b> · " + esc(whenLabel(next.quando)) : "Sem próximo degrau marcado") + "</span>" + CHEV + "</div></button>";
+    });
+    return h + "</div></div>";
+  }
+
+  function viewDetail(f) {
+    setNav("Fuga", '<button class="nav-btn" data-act="back">' + BACK + "&nbsp;Fugas</button>", "");
+    var st = f.status || "ativa";
+    var ms = (f.movimentos || []).slice().sort(function (a, b) { return new Date(b.quando) - new Date(a.quando); });
+    var h = '<div class="page"><div style="display:grid;gap:10px"><div class="tags">' + (f.exemplo ? '<span class="tag ex">Exemplo</span>' : "") + (f.area ? '<span class="tag">' + esc(f.area) + "</span>" : "") +
+      (f.sentimentos || []).map(function (s) { return '<span class="tag o">' + esc(s) + "</span>"; }).join("") + "</div>" +
+      '<h1 class="detail-title">' + esc(f.situacao) + "</h1></div>";
+    if (st === "ativa") h += '<button class="btn btn-fill btn-block" data-act="step" data-f="' + f.id + '">Marcar próximo degrau</button>';
+
+    h += '<section class="section"><div class="group-label">Degraus</div><div class="card">' + staffSVG(f.movimentos) + staffLegend() + "</div></section>";
+
+    h += '<section class="section"><div class="group-label">Movimentos</div><div class="group">' + (ms.length ? ms.map(function (m) {
+      var cls = m.status === "feito" ? "done" : m.status === "parcial" ? "part" : m.status === "nao_feito" ? "miss" : "plan";
+      var c = m.checkin, extra = "";
+      if (c && c.fiz !== "nao") extra = (c.diferente ? '<span class="txt">' + esc(c.diferente) + "</span>" : "") + (c.aprendizado ? '<span class="lesson" style="font-size:17px">' + esc(c.aprendizado) + "</span>" : "");
+      if (c && c.fiz === "nao" && (c.pesou || []).length) extra = '<span class="meta">Pesou: ' + esc(c.pesou.join(", ")) + "</span>";
+      return '<div class="mv"><i class="dot ' + cls + '"></i><div class="mv-body"><b>' + esc(m.passo) + '</b><span class="meta">' + esc(whenLabel(m.quando)) + " · " + STATUS_LABEL[m.status] + " · degrau " + (m.dificuldade || "–") + "</span>" + extra +
+        (m.status === "planejado" ? '<button class="btn btn-tint btn-small" data-act="checkin" data-f="' + f.id + '" data-m="' + m.id + '">Registrar resultado</button>' : "") + "</div></div>";
+    }).join("") : '<div class="cell"><div class="cell-sub">Nenhum movimento ainda.</div></div>') + "</div></section>";
+
+    var rows = [["Previsão", f.previsao], ["Como fujo", (f.fugas || []).join(", ")], ["Sem a muleta", f.muleta], ["Custo", [f.custo, (f.custoTags || []).length ? "(" + f.custoTags.join(", ") + ")" : ""].filter(Boolean).join(" ")], ["O que importa", f.importa]]
+      .filter(function (r) { return r[1]; });
+    if (rows.length) h += '<section class="section"><div class="group-label">Respostas</div><div class="group">' + rows.map(function (r) { return '<div class="kv-cell"><span class="k">' + r[0] + '</span><span class="v">' + esc(r[1]) + "</span></div>"; }).join("") + "</div></section>";
+
+    h += '<section class="section"><div class="group">' +
+      '<button class="cell action" data-act="edit" data-f="' + f.id + '"><div class="cell-main"><div class="cell-title">Editar respostas</div></div></button>' +
+      (st === "ativa" ? '<button class="cell action" data-act="status" data-s="superada" data-f="' + f.id + '"><div class="cell-main"><div class="cell-title">Marcar como superada</div></div></button>' +
+        '<button class="cell action" data-act="status" data-s="arquivada" data-f="' + f.id + '"><div class="cell-main"><div class="cell-title">Arquivar</div></div></button>'
+        : '<button class="cell action" data-act="status" data-s="ativa" data-f="' + f.id + '"><div class="cell-main"><div class="cell-title">Reativar</div></div></button>') +
+      '</div></section><section class="section"><div class="group"><button class="cell danger" data-act="del" data-f="' + f.id + '">Excluir fuga</button></div></section>';
+    return h + "</div>";
+  }
+
+  function viewProvas() {
+    setNav("Provas", "", "");
+    var h = '<div class="page">' + largeHead("Provas", "Previsão contra realidade");
+    var cks = checkins().filter(function (x) { return x.m.checkin.fiz !== "nao"; });
+    if (!cks.length) return h + '<div class="card onboard"><h2>Seu arquivo de provas</h2><p>Cada vez que você encara algo e registra o resultado, o app compara o que você previu com o que aconteceu. É esse arquivo que enfraquece a próxima fuga.</p></div></div>';
+    var ps = predictionStats();
+    var crit = cks.filter(function (x) { return x.m.checkin.criterio === "sim"; }).length;
+    var lidou = cks.filter(function (x) { var l = x.m.checkin.lidei; return l === "sim" || l === "mais_ou_menos" || l === "nada"; }).length;
+    var line = ps.total ? "Das " + ps.total + " vezes que você encarou, a previsão ruim se confirmou por inteiro <em>" + ps.sim + " " + plural(ps.sim, "vez", "vezes") + "</em>." : "Você encarou " + cks.length + " " + plural(cks.length, "vez", "vezes") + ".";
+    h += '<div class="card" style="display:grid;gap:14px"><p class="verdict">' + line + '</p><div class="tags"><span class="tag a">Agiu com desconforto: ' + crit + " de " + cks.length + '</span><span class="tag">Conseguiu lidar: ' + lidou + " de " + cks.length + "</span></div></div>";
+
+    var withAnx = cks.filter(function (x) { return typeof x.m.checkin.ansiedade === "number" && x.m.ansiedadeEsperada != null; }).slice(0, 10);
+    if (withAnx.length) {
+      h += '<section class="section"><div class="section-head"><h2>Ansiedade</h2></div><div class="card" style="display:grid;gap:16px"><div class="legend"><span><i class="exp"></i>esperada</span><span><i class="real"></i>sentida no pico</span></div><div class="dumb">';
+      withAnx.forEach(function (x) {
+        var e = x.m.ansiedadeEsperada, r = x.m.checkin.ansiedade, lo = Math.min(e, r), hi = Math.max(e, r);
+        h += '<div class="dumb-row"><div class="dumb-lab"><b>' + esc(x.m.passo) + "</b><span>" + e + " → " + r + '</span></div><div class="track" role="img" aria-label="Esperava ' + e + ", sentiu " + r + '">' +
+          '<span class="seg" style="left:' + lo * 10 + "%;width:" + (hi - lo) * 10 + '%"></span><span class="pt exp" style="left:' + e * 10 + '%"></span><span class="pt real" style="left:' + r * 10 + '%"></span></div></div>';
+      });
+      h += '<div class="axis"><span>0</span><span>5</span><span>10</span></div></div></div></section>';
+    }
+    h += '<section class="section"><div class="section-head"><h2>Registros</h2></div><div style="display:grid;gap:14px">';
+    cks.forEach(function (x) { h += proofCard(x, true); });
+    return h + "</div></section></div>";
+  }
+
+  function isStandalone() { return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true; }
+
+  function viewAjustes() {
+    setNav("Ajustes", "", "");
+    var meta = S.data.settings.meta || 5;
+    var h = '<div class="page">' + largeHead("Ajustes");
+    h += '<section class="section"><div class="group-label">Meta</div><div class="group"><div class="cell"><div class="cell-main"><div class="cell-title">Aproximações por semana</div></div>' +
+      '<span class="cell-value" style="font-family:var(--f-round);font-weight:600;color:var(--label)">' + meta + '</span><div class="stepper"><button data-act="meta" data-d="-1" aria-label="Diminuir">−</button><button data-act="meta" data-d="1" aria-label="Aumentar">+</button></div></div></div>' +
+      '<div class="group-foot">Enche o anel da tela Hoje. Contam os passos feitos e as sessões de 15 minutos.</div></section>';
+    h += '<section class="section"><div class="group"><button class="cell" data-act="metodo"><div class="cell-main"><div class="cell-title">Como funciona</div></div>' + CHEV + "</button></div></section>";
+    h += '<section class="section"><div class="group-label">Backup</div><div class="group">' +
+      '<button class="cell action" data-act="export"><div class="cell-main"><div class="cell-title">Exportar backup</div></div></button>' +
+      '<button class="cell action" data-act="import"><div class="cell-main"><div class="cell-title">Importar backup</div></div></button></div>' +
+      '<div class="group-foot">Seus registros ficam só neste aparelho. Exporte um backup de vez em quando e guarde no Arquivos ou no Drive. Para levar os dados a outro aparelho, exporte aqui e importe lá.</div></section>';
+    h += '<section class="section"><div class="group-label">Exemplos</div><div class="group">' + (hasExamples()
+      ? '<button class="cell action" data-act="del-examples"><div class="cell-main"><div class="cell-title">Apagar exemplos</div></div></button>'
+      : '<button class="cell action" data-act="examples"><div class="cell-main"><div class="cell-title">Carregar exemplos</div></div></button>') + "</div></section>";
+    if (!isStandalone()) h += '<section class="section"><div class="group-label">Instalar</div><div class="card" style="font-size:15px;line-height:1.45">No iPhone, abra este endereço no Safari, toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>. No Android, use o menu do Chrome e escolha <b>Instalar app</b>. Depois disso ele abre em tela cheia e funciona sem internet.</div></section>';
+    h += '<section class="section"><div class="group"><button class="cell danger" data-act="wipe">Apagar todos os dados</button></div>' +
+      '<div class="group-foot" style="text-align:center;margin-top:10px">Contrafuga ' + VERSION + " · baseado no exercício do episódio #294 do podcast Psicologia na Prática, de Alana Anijar.</div></section>";
+    return h + "</div>";
+  }
+
+  function viewMetodo() {
+    setNav("Como funciona", '<button class="nav-btn" data-act="back-ajustes">' + BACK + "&nbsp;Ajustes</button>", "", false);
+    var h = '<div class="page">' + largeHead("Como funciona");
+    h += '<section class="section"><div class="section-head"><h2>Por que a fuga se mantém</h2></div><div class="card" style="display:grid;gap:14px"><div class="cycle"><svg viewBox="0 0 380 280" role="img" aria-label="Ciclo: desconforto, fuga, alívio, previsão não testada">' +
+      '<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs>' +
+      '<path class="arc" d="M 232 44 C 300 54, 326 92, 326 118" marker-end="url(#ah)"/><path class="arc" d="M 318 168 C 308 212, 262 232, 236 234" marker-end="url(#ah)"/>' +
+      '<path class="arc" d="M 144 234 C 100 232, 62 208, 56 168" marker-end="url(#ah)"/><path class="arc" d="M 56 116 C 62 78, 100 48, 146 44" marker-end="url(#ah)"/>' +
+      '<rect class="node hot" x="136" y="22" width="108" height="42" rx="21"/><text x="190" y="48" text-anchor="middle">Desconforto</text>' +
+      '<rect class="node" x="272" y="122" width="100" height="42" rx="21"/><text x="322" y="148" text-anchor="middle">Fuga</text>' +
+      '<rect class="node" x="136" y="214" width="108" height="42" rx="21"/><text x="190" y="240" text-anchor="middle">Alívio</text>' +
+      '<rect class="node" x="4" y="116" width="106" height="54" rx="21"/><text x="57" y="139" text-anchor="middle">Previsão</text><text x="57" y="156" text-anchor="middle">não testada</text>' +
+      "</svg></div>" +
+      '<div class="prose"><p>O alívio ensina que fugir funcionou. E como você não encarou, a previsão ruim nunca foi colocada à prova. Na próxima vez, a vontade de fugir chega mais rápido.</p><p style="color:var(--label-2);font-size:15px">As fugas mais difíceis de ver são as disfarçadas: preparar demais, pedir revisão, esperar se sentir pronto, se ocupar com tarefas menores, não decidir.</p></div></div></section>';
+    h += '<section class="section"><div class="section-head"><h2>O ciclo do app</h2></div><div class="card prose"><ol>' +
+      "<li><b>Registre a fuga</b> em seis perguntas.</li><li><b>Marque o menor passo</b> com dia e hora.</li><li><b>Faça com o desconforto presente.</b> Não espere a ansiedade sumir.</li>" +
+      "<li><b>Registre o resultado</b> e compare a previsão com o que aconteceu.</li><li><b>Repita e suba um degrau.</b> Uma experiência não desfaz um padrão de anos.</li></ol></div></section>";
+    h += '<section class="section"><div class="section-head"><h2>O critério de sucesso</h2></div><div class="card" style="display:grid;gap:8px"><p class="quote">Fiz o que importava, mesmo com o desconforto presente?</p><p class="help">Ficar calmo não é o critério. Se você fez e ficou ansioso, deu certo.</p></div></section>';
+    h += '<section class="section"><div class="section-head"><h2>Limites</h2></div><div class="card prose"><p>O método serve para evitações do dia a dia. Em casos de trauma, crises de pânico intensas, compulsões ou fobias, o caminho é acompanhamento com um profissional de saúde mental.</p></div>' +
+      '<div class="group-foot">Baseado no exercício do episódio #294 do podcast Psicologia na Prática, de Alana Anijar, que usa princípios da terapia cognitivo-comportamental e da terapia de aceitação e compromisso.</div></section>';
+    return h + "</div>";
+  }
+
+  /* ---------- Folhas ---------- */
+  var lastFocus = null;
+  function openSheet(o) {
+    var root = $("#sheetRoot"), wasOpen = !!root.firstChild;
+    if (!wasOpen) lastFocus = document.activeElement;
+    root.dataset.kind = o.kind;
+    root.innerHTML = '<div class="sheet-back' + (wasOpen ? "" : " enter") + '" data-backdrop="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(o.title) + '">' +
+      '<div class="grabber"></div><div class="sheet-nav">' + (o.left || '<button class="nav-btn" data-act="close">Cancelar</button>') +
+      '<div class="sheet-title">' + esc(o.title) + "</div>" + (o.right || "<span></span>") + "</div>" + (o.dots || "") +
+      '<div class="sheet-body">' + o.body + "</div></div></div>";
+    if (!wasOpen) { document.documentElement.style.overflow = "hidden"; }
+  }
+  function closeSheet() {
+    var root = $("#sheetRoot"); root.innerHTML = ""; root.dataset.kind = "";
+    document.documentElement.style.overflow = "";
+    if (lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch (e) {}
+  }
+  function chipsHTML(name, options, selected, single) {
+    selected = selected || (single ? "" : []);
+    return '<div class="chips" data-chips="' + name + '"' + (single ? ' data-single="1"' : "") + ">" + options.map(function (o) {
+      var on = single ? selected === o : selected.indexOf(o) >= 0;
+      return '<button type="button" class="chip" data-val="' + esc(o) + '" aria-pressed="' + on + '">' + esc(o) + "</button>";
+    }).join("") + "</div>";
+  }
+  function segHTML(name, options, value) {
+    return '<div class="segmented" data-seg="' + name + '">' + options.map(function (o) { return '<button type="button" data-val="' + o[0] + '" aria-pressed="' + (value === o[0]) + '">' + esc(o[1]) + "</button>"; }).join("") + "</div>";
+  }
+  function radioHTML(name, options, value) {
+    return '<div class="group radio" data-radio="' + name + '" role="radiogroup">' + options.map(function (o) {
+      return '<button type="button" class="cell" role="radio" data-val="' + o[0] + '" aria-checked="' + (value === o[0]) + '"><div class="cell-main"><div class="cell-title">' + esc(o[1]) + "</div></div>" + CHECK + "</button>";
+    }).join("") + "</div>";
+  }
+  function sliderHTML(id, value, lo, hi) {
+    if (value == null || isNaN(+value)) value = 5;
+    return '<div class="slider-card"><div class="slider-row"><input type="range" id="' + id + '" min="0" max="10" step="1" value="' + value + '"><output id="' + id + '-o">' + value + "</output></div>" +
+      '<div class="slider-scale"><span>' + lo + "</span><span>" + hi + "</span></div></div>";
+  }
+  function sizesHTML(value) {
+    return '<div class="sizes" data-sizes="1">' + [1, 2, 3, 4, 5].map(function (n) { return '<button type="button" data-val="' + n + '" aria-pressed="' + (value === n) + '"><b>' + n + "</b>" + DEGRAU[n] + "</button>"; }).join("") + "</div>";
+  }
+  function field(label, inner, foot) { return '<div class="field">' + (label ? '<div class="field-label">' + label + "</div>" : "") + inner + (foot ? '<div class="field-foot">' + foot + "</div>" : "") + "</div>"; }
+
+  /* ---------- Registrar fuga ---------- */
+  var W = null;
+  function openWizard(prefill, editId) {
+    var base = editId ? clone(findFuga(editId)) : null;
+    W = { step: 1, editId: editId || null, err: "",
+      d: base || Object.assign({ situacao: "", area: "", sentimentos: [], previsao: "", intensidade: 6, fugas: [], muleta: "", custoTags: [], custo: "", importa: "",
+        passo: "", quando: toLocalInput(nextHour()), dificuldade: 1, ansiedadeEsperada: 5 }, prefill || {}) };
+    renderWizard();
+  }
+  function wSteps() { return W.editId ? 5 : 6; }
+  function renderWizard() {
+    var d = W.d, n = wSteps(), s = W.step, b = "";
+    if (s === 1) b = '<h2 class="q">O que você está evitando?</h2><p class="help">Seja concreto. "Fujo dos meus problemas" é geral demais. "Não liguei para o cliente para renegociar o prazo" funciona.</p>' +
+      field("Situação", '<textarea class="input" id="w-situacao" data-bind="situacao" placeholder="Ex.: Mandar a proposta que está pronta há uma semana">' + esc(d.situacao) + "</textarea>") +
+      field("Área da vida", chipsHTML("area", AREAS, d.area, true));
+    else if (s === 2) b = '<h2 class="q">O que você não quer sentir?</h2><p class="help">Às vezes a fuga não é da situação, é do que ela desperta por dentro.</p>' +
+      field("Sentimentos", chipsHTML("sentimentos", SENTIMENTOS, d.sentimentos)) +
+      field("Se você encarar, o que imagina que vai acontecer?", '<textarea class="input" id="w-previsao" data-bind="previsao" placeholder="Ex.: O cliente vai achar caro e parar de responder">' + esc(d.previsao) + "</textarea>", "Escreva como aparece na sua cabeça. Depois você compara com o que aconteceu.") +
+      field("Quanto isso te mobiliza agora", sliderHTML("w-intensidade", d.intensidade, "nada", "paralisa"));
+    else if (s === 3) b = '<h2 class="q">Como você está fugindo?</h2><p class="help">Conta também a fuga disfarçada de prudência: preparar demais, pedir revisão, esperar o momento certo.</p>' +
+      field("O que você faz no lugar", chipsHTML("fugas", FUGAS, d.fugas)) +
+      field("Teste da muleta", '<textarea class="input" id="w-muleta" data-bind="muleta" placeholder="O que aconteceria se você não fizesse isso?">' + esc(d.muleta) + "</textarea>", "Opcional.");
+    else if (s === 4) b = '<h2 class="q">O que isso está te custando?</h2><p class="help">Olhe para o padrão, não para esta semana. O que alivia hoje pode sair caro em meses.</p>' +
+      field("Onde pesa", chipsHTML("custoTags", CUSTOS, d.custoTags)) +
+      field("Se você repetir isso por seis meses", '<textarea class="input" id="w-custo" data-bind="custo" placeholder="O que acontece?">' + esc(d.custo) + "</textarea>");
+    else if (s === 5) b = '<h2 class="q">O que importa para você aqui?</h2><p class="help">A direção. Não o que você quer evitar, e sim o que quer construir.</p>' +
+      field("O que importa", '<textarea class="input" id="w-importa" data-bind="importa" placeholder="Ex.: Crescer com clientes que valorizam o trabalho">' + esc(d.importa) + "</textarea>");
+    else b = '<h2 class="q">Qual o menor passo nessa direção?</h2><p class="help">Não comece pelo mais difícil. Um passo de até 15 minutos já conta.</p>' +
+      field("Passo", '<input class="input" type="text" id="w-passo" data-bind="passo" value="' + esc(d.passo) + '" placeholder="Ex.: Mandar a proposta sem a terceira revisão">') +
+      field("Quando", '<input class="input" type="datetime-local" id="w-quando" data-bind="quando" value="' + esc(d.quando) + '">') +
+      field("Tamanho do degrau", sizesHTML(d.dificuldade)) +
+      field("Ansiedade que você espera sentir", sliderHTML("w-ans", d.ansiedadeEsperada, "nenhuma", "máxima"));
+    if (W.err) b += '<p class="err">' + esc(W.err) + "</p>";
+    var dots = '<div class="dots">' + Array.apply(null, Array(n)).map(function (_, i) { return '<i class="' + (i + 1 === s ? "on" : "") + '"></i>'; }).join("") + "</div>";
+    openSheet({ kind: "wizard", title: W.editId ? "Editar fuga" : "Nova fuga", dots: dots, body: b,
+      left: s > 1 ? '<button class="nav-btn" data-act="w-back">' + BACK + "&nbsp;Voltar</button>" : '<button class="nav-btn" data-act="close">Cancelar</button>',
+      right: s < n ? '<button class="nav-btn" data-act="w-next">Próximo</button>' : '<button class="nav-btn" data-act="w-save">Salvar</button>' });
+  }
+  function wValidate() {
+    var d = W.d;
+    if (W.step === 1 && d.situacao.trim().length < 6) return "Descreva a situação com um pouco mais de detalhe.";
+    if (W.step === 6) { if (d.passo.trim().length < 3) return "Escreva qual é o passo."; if (!fromLocalInput(d.quando)) return "Escolha quando você vai fazer."; }
+    return "";
+  }
+  function wSave() {
+    var err = wValidate(); if (err) { W.err = err; renderWizard(); return; }
+    var d = W.d, nowIso = new Date().toISOString(), f, wasEdit = !!W.editId;
+    if (W.editId) { f = clone(findFuga(W.editId)); ["situacao", "area", "sentimentos", "previsao", "intensidade", "fugas", "muleta", "custoTags", "custo", "importa"].forEach(function (k) { f[k] = typeof d[k] === "string" ? d[k].trim() : d[k]; }); }
+    else f = { id: uid(), createdAt: nowIso, status: "ativa", situacao: d.situacao.trim(), area: d.area || "", sentimentos: d.sentimentos, previsao: d.previsao.trim(), intensidade: +d.intensidade,
+      fugas: d.fugas, muleta: d.muleta.trim(), custoTags: d.custoTags, custo: d.custo.trim(), importa: d.importa.trim(),
+      movimentos: [{ id: uid(), criadoEm: nowIso, passo: d.passo.trim(), quando: fromLocalInput(d.quando), dificuldade: d.dificuldade, ansiedadeEsperada: +d.ansiedadeEsperada, status: "planejado" }] };
+    closeSheet(); W = null;
+    transition(function () { saveFuga(f); });
+    toast(wasEdit ? "Fuga atualizada." : "Fuga registrada. O passo já está na Agenda.");
+  }
+
+  /* ---------- Novo degrau ---------- */
+  var ST = null;
+  function openStep(fid) {
+    var f = findFuga(fid); if (!f) return;
+    var last = (f.movimentos || []).slice().sort(function (a, b) { return new Date(b.quando) - new Date(a.quando); })[0];
+    ST = { fid: fid, err: "", last: last, d: { passo: "", quando: toLocalInput(tomorrowAt(9)), dificuldade: Math.min(5, ((last && last.dificuldade) || 1) + (last && last.status === "feito" ? 1 : 0)), ansiedadeEsperada: 5 } };
+    renderStep();
+  }
+  function renderStep() {
+    var f = findFuga(ST.fid), d = ST.d, last = ST.last;
+    var b = '<div class="ref"><span class="k">Fuga</span><b>' + esc(f.situacao) + "</b>" + (last ? '<span class="s">Último degrau: ' + esc(last.passo) + " · " + STATUS_LABEL[last.status].toLowerCase() + "</span>" : "") + "</div>" +
+      '<h2 class="q">Qual o próximo degrau?</h2><p class="help">Suba um pouco em relação ao último, ou repita o tamanho se ainda estiver pesado.</p>' +
+      field("Passo", '<input class="input" type="text" id="s-passo" data-sbind="passo" value="' + esc(d.passo) + '" placeholder="O que exatamente você vai fazer">') +
+      field("Quando", '<input class="input" type="datetime-local" id="s-quando" data-sbind="quando" value="' + esc(d.quando) + '">') +
+      field("Tamanho do degrau", sizesHTML(d.dificuldade)) +
+      field("Ansiedade que você espera sentir", sliderHTML("s-ans", d.ansiedadeEsperada, "nenhuma", "máxima")) +
+      (ST.err ? '<p class="err">' + esc(ST.err) + "</p>" : "");
+    openSheet({ kind: "step", title: "Novo degrau", body: b, right: '<button class="nav-btn" data-act="s-save">Marcar</button>' });
+  }
+  function stepSave() {
+    var d = ST.d;
+    if (d.passo.trim().length < 3) { ST.err = "Escreva qual é o passo."; renderStep(); return; }
+    var q = fromLocalInput(d.quando); if (!q) { ST.err = "Escolha quando você vai fazer."; renderStep(); return; }
+    var f = clone(findFuga(ST.fid)); f.movimentos = f.movimentos || [];
+    f.movimentos.push({ id: uid(), criadoEm: new Date().toISOString(), passo: d.passo.trim(), quando: q, dificuldade: d.dificuldade, ansiedadeEsperada: +d.ansiedadeEsperada, status: "planejado" });
+    closeSheet(); ST = null; saveFuga(f);
+    toast("Degrau marcado: " + whenLabel(q).toLowerCase() + ".");
+  }
+
+  /* ---------- Registrar resultado ---------- */
+  var CK = null;
+  function openCheckin(fid, mid) {
+    var f = findFuga(fid); if (!f) return;
+    var m = (f.movimentos || []).filter(function (x) { return x.id === mid; })[0]; if (!m) return;
+    CK = { fid: fid, mid: mid, done: false, err: "", d: { fiz: "", ansiedade: m.ansiedadeEsperada != null ? m.ansiedadeEsperada : 5, criterio: false, previsao: "", diferente: "", lidei: "", aprendizado: "", pesou: [], noLugar: "", menor: "", menorQuando: toLocalInput(tomorrowAt(9)) } };
+    renderCheckin();
+  }
+  function renderCheckin() {
+    var f = findFuga(CK.fid), m = (f.movimentos || []).filter(function (x) { return x.id === CK.mid; })[0], d = CK.d;
+    if (CK.done) {
+      var body = '<div class="done-view"><div class="badge"><svg width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18l6 6 12-13"/></svg></div>' +
+        "<h2>" + esc(CK.doneMsg) + "</h2><p>" + esc(CK.doneSub) + "</p>" +
+        ((f.status || "ativa") === "ativa" ? '<button class="btn btn-fill btn-block" data-act="step" data-f="' + f.id + '">Marcar próximo degrau</button>' : "") +
+        '<button class="btn btn-plain" data-act="close">Agora não</button></div>';
+      openSheet({ kind: "checkin", title: "Resultado", body: body, left: "<span></span>", right: '<button class="nav-btn" data-act="close">OK</button>' });
+      return;
+    }
+    var b = '<div class="ref"><span class="k">Passo · ' + esc(whenLabel(m.quando)) + "</span><b>" + esc(m.passo) + '</b><span class="s">' + esc(f.situacao) + "</span></div>" +
+      field("Você fez?", segHTML("fiz", [["sim", "Fiz"], ["parcial", "Em parte"], ["nao", "Não fiz"]], d.fiz));
+    if (d.fiz === "sim" || d.fiz === "parcial") {
+      b += '<div class="group"><label class="cell" for="c-crit"><div class="cell-main"><div class="cell-title">Fiz mesmo com o desconforto presente</div></div><span class="switch"><input type="checkbox" id="c-crit"' + (d.criterio ? " checked" : "") + "><span></span></span></label></div>" +
+        '<div class="field-foot" style="margin-top:-14px">Esse é o critério que conta. Ficar calmo não é o critério.</div>' +
+        field("Ansiedade no pico", sliderHTML("c-ans", d.ansiedade, "nenhuma", "máxima"), m.ansiedadeEsperada != null ? "Você esperava " + m.ansiedadeEsperada + "." : "") +
+        field("Sua previsão se confirmou?", segHTML("previsao", [["sim", "Sim"], ["em_parte", "Em parte"], ["nao", "Não"]], d.previsao), f.previsao ? "Você previu: " + esc(f.previsao) : "") +
+        field("O que aconteceu de fato", '<textarea class="input" id="c-dif" data-cbind="diferente" placeholder="Ex.: Respondeu no mesmo dia pedindo uma reunião">' + esc(d.diferente) + "</textarea>") +
+        field("Se algo desagradável aconteceu", radioHTML("lidei", [["sim", "Consegui lidar"], ["mais_ou_menos", "Lidei mais ou menos"], ["nao", "Não consegui lidar"], ["nada", "Nada de ruim aconteceu"]], d.lidei)) +
+        field("Aprendizado em uma frase", '<input class="input" type="text" id="c-apr" data-cbind="aprendizado" value="' + esc(d.aprendizado) + '" placeholder="Opcional">');
+    } else if (d.fiz === "nao") {
+      b += field("O que pesou?", chipsHTML("pesou", SENTIMENTOS, d.pesou)) +
+        field("O que você fez no lugar", '<input class="input" type="text" id="c-lugar" data-cbind="noLugar" value="' + esc(d.noLugar) + '" placeholder="Opcional">') +
+        field("Versão menor desse passo", '<input class="input" type="text" id="c-menor" data-cbind="menor" value="' + esc(d.menor) + '" placeholder="Ex.: Só escrever o e-mail, sem enviar">', "Não fazer é informação, não fracasso. Diminua o degrau e marque de novo.") +
+        field("Quando", '<input class="input" type="datetime-local" id="c-mq" data-cbind="menorQuando" value="' + esc(d.menorQuando) + '">');
+    }
+    if (CK.err) b += '<p class="err">' + esc(CK.err) + "</p>";
+    openSheet({ kind: "checkin", title: "Registrar resultado", body: b, right: '<button class="nav-btn" data-act="c-save"' + (d.fiz ? "" : " disabled") + ">Salvar</button>" });
+  }
+  function checkinSave() {
+    var d = CK.d; if (!d.fiz) return;
+    var f = clone(findFuga(CK.fid)), nowIso = new Date().toISOString(), m = f.movimentos.filter(function (x) { return x.id === CK.mid; })[0], newQ = null;
+    if (d.fiz === "nao") {
+      if (d.menor.trim().length >= 3) { newQ = fromLocalInput(d.menorQuando); if (!newQ) { CK.err = "Escolha quando fazer a versão menor."; renderCheckin(); return; } }
+      m.status = "nao_feito"; m.checkin = { data: nowIso, fiz: "nao", pesou: d.pesou, noLugar: d.noLugar.trim() };
+      if (newQ) f.movimentos.push({ id: uid(), criadoEm: nowIso, passo: d.menor.trim(), quando: newQ, dificuldade: Math.max(1, (m.dificuldade || 2) - 1), ansiedadeEsperada: m.ansiedadeEsperada != null ? m.ansiedadeEsperada : 5, status: "planejado" });
+      saveFuga(f); closeSheet(); CK = null;
+      toast(newQ ? "Registrado. Versão menor marcada: " + whenLabel(newQ).toLowerCase() + "." : "Registrado. Quando puder, marque uma versão menor.");
+      return;
+    }
+    m.status = d.fiz === "sim" ? "feito" : "parcial";
+    m.checkin = { data: nowIso, fiz: d.fiz, ansiedade: +d.ansiedade, criterio: d.criterio ? "sim" : "nao", previsao: d.previsao, diferente: d.diferente.trim(), lidei: d.lidei, aprendizado: d.aprendizado.trim() };
+    saveFuga(f);
+    CK.done = true;
+    if (d.criterio) { CK.doneMsg = "Você agiu com o desconforto presente."; CK.doneSub = "É isso que conta. Repetir é o que desfaz o padrão, então marque o próximo degrau agora."; }
+    else { CK.doneMsg = "Registrado."; CK.doneSub = "Você encostou na situação. No próximo degrau, tente fazer sem esperar a ansiedade baixar."; }
+    renderCheckin();
+  }
+
+  /* ---------- Alerta de confirmação ---------- */
+  var alertCb = null;
+  function confirmAlert(title, msg, okLabel, cb) {
+    alertCb = cb;
+    $("#alertRoot").innerHTML = '<div class="alert-back"><div class="alert" role="alertdialog" aria-modal="true"><div class="alert-body"><b>' + esc(title) + "</b><span>" + esc(msg) + "</span></div>" +
+      '<div class="alert-actions"><button data-alert="cancel">Cancelar</button><button class="destructive" data-alert="ok">' + esc(okLabel) + "</button></div></div></div>";
+  }
+
+  /* ---------- Modo 15 minutos ---------- */
+  var SP = null, spTimer = null, wakeLock = null;
+  function openSprint() { SP = { phase: "form", evitando: "", versao: "", sentimento: "", total: 900, elapsed: 0, startedAt: 0, running: false, resultado: "", first: true }; renderSprint(); }
+  function closeSprint() { stopTick(); releaseWake(); SP = null; $("#sprintRoot").innerHTML = ""; document.documentElement.style.overflow = ""; }
+  function elapsedNow() { return SP.elapsed + (SP.running ? (Date.now() - SP.startedAt) / 1000 : 0); }
+  function fmtClock(sec) { sec = Math.max(0, Math.ceil(sec)); return pad(Math.floor(sec / 60)) + ":" + pad(sec % 60); }
+  function renderSprint() {
+    document.documentElement.style.overflow = "hidden";
+    var h = '<div class="sprint' + (SP.first ? " enter" : "") + '" role="dialog" aria-modal="true" aria-label="Modo 15 minutos"><div class="sp-in"><div class="sp-top"><span class="kick">Modo 15 minutos</span>' +
+      '<button class="nav-btn" data-act="sp-close">' + (SP.phase === "run" ? "Sair" : "Fechar") + "</button></div>";
+    SP.first = false;
+    if (SP.phase === "form") {
+      h += "<h2>O que você está evitando agora?</h2><p class=\"help\">Sem análise longa. Nomeie, escolha a versão pequena e comece.</p>" +
+        field("Estou evitando", '<input class="input" type="text" id="sp-ev" data-spbind="evitando" value="' + esc(SP.evitando) + '" placeholder="Ex.: Responder o cliente que pediu desconto">') +
+        field("O que não quero sentir", chipsHTML("spSent", SENTIMENTOS, SP.sentimento, true)) +
+        field("A versão de 15 minutos disso é", '<input class="input" type="text" id="sp-v" data-spbind="versao" value="' + esc(SP.versao) + '" placeholder="Ex.: Escrever o rascunho da resposta">') +
+        '<button class="btn btn-fill btn-block" data-act="sp-start"' + (SP.evitando.trim() && SP.versao.trim() ? "" : " disabled") + ">Começar 15 minutos</button>";
+    } else if (SP.phase === "run") {
+      var C = 2 * Math.PI * 130;
+      h += '<div class="ring-big"><svg viewBox="0 0 280 280" aria-hidden="true"><circle class="bgc" cx="140" cy="140" r="130"/><circle class="fgc" id="spRing" cx="140" cy="140" r="130" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + C.toFixed(1) + '"/></svg>' +
+        '<div class="time"><b id="spClock">' + fmtClock(SP.total - elapsedNow()) + '</b><span id="spState">' + (SP.running ? "encarando" : "pausado") + "</span></div></div>" +
+        '<p class="target">' + esc(SP.versao) + '</p><p class="help" style="text-align:center">Se a vontade de fugir aparecer, ela pode ficar. Você continua mesmo assim.</p>' +
+        '<div class="circle-actions"><button class="circle-btn gray" data-act="sp-pause">' + (SP.running ? "Pausar" : "Seguir") + '</button><button class="circle-btn go" data-act="sp-finish">Terminei</button></div>';
+    } else if (SP.phase === "end") {
+      h += "<h2>Como foi?</h2><p class=\"help\">" + esc(SP.versao) + " · " + Math.max(1, Math.round(elapsedNow() / 60)) + " min</p>" +
+        '<div class="sp-choices" data-spres="1">' + [["sim", "Fiz"], ["parcial", "Fiz em parte"], ["nao", "Não fiz"]].map(function (o) { return '<button type="button" data-val="' + o[0] + '" aria-pressed="' + (SP.resultado === o[0]) + '">' + o[1] + "</button>"; }).join("") + "</div>" +
+        '<button class="btn btn-fill btn-block" data-act="sp-save"' + (SP.resultado ? "" : " disabled") + ">Registrar</button>";
+    } else {
+      h += "<h2>" + (SP.resultado === "nao" ? "Registrado. Amanhã tem outra chance." : "Você encostou no que estava evitando.") + "</h2>" +
+        '<p class="help">Se isso costuma voltar, vale acompanhar como fuga: você marca degraus e compara previsão com resultado.</p>' +
+        '<button class="btn btn-fill btn-block" data-act="sp-tofuga">Acompanhar como fuga</button><button class="btn btn-plain" data-act="sp-close" style="color:#3DD6B3">Fechar</button>';
+    }
+    $("#sprintRoot").innerHTML = h + "</div></div>";
+    if (SP.phase === "run") tick();
+  }
+  function tick() {
+    if (!SP || SP.phase !== "run") return;
+    var remain = SP.total - elapsedNow(), clock = $("#spClock"), ring = $("#spRing");
+    if (clock) clock.textContent = fmtClock(remain);
+    if (ring) { var C = 2 * Math.PI * 130; ring.setAttribute("stroke-dashoffset", (C * (1 - Math.min(1, elapsedNow() / SP.total))).toFixed(1)); }
+    if (remain <= 0) { SP.elapsed = SP.total; SP.running = false; stopTick(); releaseWake(); beep(); SP.phase = "end"; SP.resultado = "sim"; renderSprint(); }
+  }
+  function startTick() { stopTick(); spTimer = setInterval(tick, 250); }
+  function stopTick() { if (spTimer) clearInterval(spTimer); spTimer = null; }
+  function beep() { try { var A = window.AudioContext || window.webkitAudioContext, ctx = new A(); [0, .22].forEach(function (t) { var o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 660; g.gain.setValueAtTime(.0001, ctx.currentTime + t); g.gain.exponentialRampToValueAtTime(.2, ctx.currentTime + t + .02); g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + t + .18); o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + .2); }); } catch (e) {} }
+  function requestWake() { try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wakeLock = w; }, function () {}); } catch (e) {} }
+  function releaseWake() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && SP && SP.running) { requestWake(); tick(); } });
+
+  /* ---------- Backup ---------- */
+  function exportBackup() {
+    var payload = JSON.stringify({ app: "contrafuga", version: VERSION, exportedAt: new Date().toISOString(), data: S.data }, null, 2);
+    var name = "contrafuga-backup-" + dayKey(new Date()) + ".json";
+    var blob = new Blob([payload], { type: "application/json" });
+    try {
+      var file = new File([blob], name, { type: "application/json" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { navigator.share({ files: [file], title: "Backup do Contrafuga" }).catch(function () {}); return; }
+    } catch (e) {}
+    var url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+    toast("Backup salvo em Downloads.");
+  }
+  function importBackup(file) {
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var j = JSON.parse(r.result), d = j.data || j;
+        if (!Array.isArray(d.fugas)) throw new Error("formato");
+        var byId = {}; fugas().forEach(function (f) { byId[f.id] = f; });
+        d.fugas.forEach(function (f) { if (f && f.id && f.situacao) byId[f.id] = f; });
+        S.data.fugas = Object.keys(byId).map(function (k) { return byId[k]; });
+        var sp = {}; S.data.sprints.forEach(function (s) { sp[s.id] = s; }); (d.sprints || []).forEach(function (s) { if (s && s.id) sp[s.id] = s; });
+        S.data.sprints = Object.keys(sp).map(function (k) { return sp[k]; });
+        if (d.settings && d.settings.meta) S.data.settings.meta = d.settings.meta;
+        persist(); render(); toast("Backup importado: " + d.fugas.length + " " + plural(d.fugas.length, "fuga", "fugas") + ".");
+      } catch (e) { toast("Esse arquivo não é um backup do Contrafuga."); }
+    };
+    r.readAsText(file);
+  }
+  $("#importFile").addEventListener("change", function (e) { var f = e.target.files && e.target.files[0]; if (f) importBackup(f); e.target.value = ""; });
+
+  /* ---------- Eventos ---------- */
+  function goTab(t) { transition(function () { S.tab = t; S.detail = null; S.metodo = false; try { localStorage.setItem(KEY + ":tab", t); } catch (e) {} render(); window.scrollTo(0, 0); }); }
+
+  document.addEventListener("click", function (ev) {
+    var t = ev.target;
+    var al = t.closest("[data-alert]");
+    if (al) { var cb = alertCb; alertCb = null; $("#alertRoot").innerHTML = ""; if (al.dataset.alert === "ok" && cb) cb(); return; }
+    var tab = t.closest(".tab"); if (tab) { if (S.tab === tab.dataset.tab && !S.detail && !S.metodo) { window.scrollTo({ top: 0, behavior: REDUCED ? "auto" : "smooth" }); return; } goTab(tab.dataset.tab); return; }
+    var go = t.closest("[data-go]"); if (go) { goTab(go.dataset.go); return; }
+    var fl = t.closest("[data-filtro]"); if (fl) { S.filtro = fl.dataset.filtro; render(); return; }
+    if (t.classList && t.classList.contains("sheet-back")) { closeSheet(); return; }
+
+    var chip = t.closest(".chip");
+    if (chip) {
+      var group = chip.parentElement, name = group.dataset.chips, val = chip.dataset.val, single = !!group.dataset.single;
+      var target = name === "spSent" ? SP : name === "pesou" ? CK.d : W.d, key = name === "spSent" ? "sentimento" : name;
+      if (single) { target[key] = target[key] === val ? "" : val; $$(".chip", group).forEach(function (c) { c.setAttribute("aria-pressed", c.dataset.val === target[key]); }); }
+      else { var arr = target[key] || [], i = arr.indexOf(val); if (i >= 0) arr.splice(i, 1); else arr.push(val); target[key] = arr; chip.setAttribute("aria-pressed", i < 0); }
+      return;
+    }
+    var sg = t.closest("[data-seg] button");
+    if (sg) {
+      var sname = sg.parentElement.dataset.seg; CK.d[sname] = sg.dataset.val; CK.err = "";
+      if (sname === "fiz") { renderCheckin(); return; }
+      $$("button", sg.parentElement).forEach(function (b) { b.setAttribute("aria-pressed", b === sg); });
+      return;
+    }
+    var rd = t.closest("[data-radio] .cell");
+    if (rd) { CK.d[rd.parentElement.dataset.radio] = rd.dataset.val; $$(".cell", rd.parentElement).forEach(function (c) { c.setAttribute("aria-checked", c === rd); }); return; }
+    var sz = t.closest("[data-sizes] button");
+    if (sz) { var v = +sz.dataset.val; if ($("#sheetRoot").dataset.kind === "step" && ST) ST.d.dificuldade = v; else if (W) W.d.dificuldade = v; $$("button", sz.parentElement).forEach(function (b) { b.setAttribute("aria-pressed", b === sz); }); return; }
+    var spr = t.closest("[data-spres] button");
+    if (spr) { SP.resultado = spr.dataset.val; renderSprint(); return; }
+
+    var a = t.closest("[data-act]"); if (!a) return;
+    var act = a.dataset.act, fid = a.dataset.f;
+    switch (act) {
+      case "new": openWizard(); break;
+      case "close": closeSheet(); break;
+      case "w-next": var e = wValidate(); if (e) { W.err = e; renderWizard(); break; } W.err = ""; W.step++; renderWizard(); break;
+      case "w-back": W.err = ""; W.step--; renderWizard(); break;
+      case "w-save": wSave(); break;
+      case "step": openStep(fid); break;
+      case "s-save": stepSave(); break;
+      case "checkin": openCheckin(fid, a.dataset.m); break;
+      case "c-save": checkinSave(); break;
+      case "detail": transition(function () { S.detail = fid; render(); window.scrollTo(0, 0); }); break;
+      case "back": transition(function () { S.detail = null; render(); window.scrollTo(0, 0); }); break;
+      case "metodo": transition(function () { S.metodo = true; render(); window.scrollTo(0, 0); }); break;
+      case "back-ajustes": transition(function () { S.metodo = false; render(); window.scrollTo(0, 0); }); break;
+      case "edit": openWizard(null, fid); break;
+      case "status":
+        var f = clone(findFuga(fid)); f.status = a.dataset.s; saveFuga(f);
+        toast(f.status === "superada" ? "Marcada como superada." : f.status === "arquivada" ? "Fuga arquivada." : "Fuga reativada.");
+        break;
+      case "del":
+        confirmAlert("Excluir esta fuga?", "Todos os movimentos dela serão apagados deste aparelho.", "Excluir", function () { deleteFuga(fid); transition(function () { S.detail = null; render(); }); toast("Fuga excluída."); });
+        break;
+      case "examples": loadExamples(); render(); toast("Exemplos carregados."); break;
+      case "del-examples": S.data.fugas = fugas().filter(function (x) { return !x.exemplo; }); persist(); render(); toast("Exemplos apagados."); break;
+      case "wipe": confirmAlert("Apagar todos os dados?", "Fugas, movimentos e sessões serão apagados deste aparelho. Exporte um backup antes se quiser guardar.", "Apagar", function () { S.data = emptyData(); persist(); render(); toast("Tudo apagado."); }); break;
+      case "meta": S.data.settings.meta = Math.max(1, Math.min(21, (S.data.settings.meta || 5) + (+a.dataset.d))); persist(); render(); break;
+      case "export": exportBackup(); break;
+      case "import": $("#importFile").click(); break;
+      case "sprint": openSprint(); break;
+      case "sp-close": closeSprint(); break;
+      case "sp-start": SP.phase = "run"; SP.running = true; SP.startedAt = Date.now(); requestWake(); renderSprint(); startTick(); break;
+      case "sp-pause":
+        if (SP.running) { SP.elapsed = elapsedNow(); SP.running = false; stopTick(); } else { SP.running = true; SP.startedAt = Date.now(); startTick(); }
+        a.textContent = SP.running ? "Pausar" : "Seguir"; var sst = $("#spState"); if (sst) sst.textContent = SP.running ? "encarando" : "pausado";
+        break;
+      case "sp-finish": SP.elapsed = elapsedNow(); SP.running = false; stopTick(); releaseWake(); SP.phase = "end"; SP.resultado = "sim"; renderSprint(); break;
+      case "sp-save":
+        S.data.sprints.push({ id: uid(), createdAt: new Date().toISOString(), evitando: SP.evitando.trim(), versao: SP.versao.trim(), sentimento: SP.sentimento || "", resultado: SP.resultado, segundos: Math.round(SP.elapsed) });
+        persist(); render(); SP.phase = "done"; renderSprint();
+        break;
+      case "sp-tofuga": var pre = { situacao: SP.evitando, sentimentos: SP.sentimento ? [SP.sentimento] : [] }; closeSprint(); openWizard(pre); break;
+    }
+  });
+
+  document.addEventListener("input", function (ev) {
+    var t = ev.target;
+    if (t.dataset.bind && W) W.d[t.dataset.bind] = t.value;
+    else if (t.dataset.sbind && ST) ST.d[t.dataset.sbind] = t.value;
+    else if (t.dataset.cbind && CK) CK.d[t.dataset.cbind] = t.value;
+    else if (t.dataset.spbind && SP) { SP[t.dataset.spbind] = t.value; var gob = $('[data-act="sp-start"]'); if (gob) gob.disabled = !(SP.evitando.trim() && SP.versao.trim()); }
+    if (t.type === "range") {
+      var out = $("#" + t.id + "-o"); if (out) out.textContent = t.value;
+      if (t.id === "w-intensidade") W.d.intensidade = +t.value;
+      if (t.id === "w-ans") W.d.ansiedadeEsperada = +t.value;
+      if (t.id === "s-ans") ST.d.ansiedadeEsperada = +t.value;
+      if (t.id === "c-ans") CK.d.ansiedade = +t.value;
+    }
+    if (t.id === "c-crit" && CK) CK.d.criterio = t.checked;
+  });
+  document.addEventListener("change", function (ev) { if (ev.target.id === "c-crit" && CK) CK.d.criterio = ev.target.checked; });
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key !== "Escape") return;
+    if ($("#alertRoot").firstChild) { $("#alertRoot").innerHTML = ""; alertCb = null; return; }
+    if (SP && SP.phase !== "run") { closeSprint(); return; }
+    if ($("#sheetRoot").firstChild) closeSheet();
+  });
+
+  /* ---------- Início ---------- */
+  render();
+  setInterval(function () { if (!$("#sheetRoot").firstChild && !SP && S.tab === "hoje") render(); }, 60000);
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+  }
+})();
+</script>
+</body>
+</html>
